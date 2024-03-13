@@ -18,6 +18,7 @@ import { CppConfigurationProvider, DiagnosticsCpptools } from '@cmt/cpptools';
 import { ProjectController, FolderProjectType} from '@cmt/projectController';
 
 import {
+    Kit,
     SpecialKits,
     USER_KITS_FILEPATH,
     findCLCompilerPath,
@@ -947,14 +948,14 @@ export class ExtensionManager implements vscode.Disposable {
         await this.getActiveProject()?.presetsController.reapplyPresets();
     }
 
-    async scanForKits() {
+    async scanForKits(additionalKits?: Kit[]) {
         KitsController.additionalCompilerSearchDirs = await this.getAdditionalCompilerDirs();
         if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length < 1) {
             return;
         }
         const workspaceContext = DirectoryContext.createForDirectory(vscode.workspace.workspaceFolders[0], new StateManager(this.extensionContext, vscode.workspace.workspaceFolders[0]));
         const cmakePath: string = await workspaceContext.getCMakePath() || '';
-        const duplicateRemoved = await KitsController.scanForKits(cmakePath);
+        const duplicateRemoved = await KitsController.scanForKits(cmakePath, additionalKits);
         if (duplicateRemoved) {
             // Check each project. If there is an active kit set and if it is of the old definition, unset the kit.
             for (const project of this.projectController.getAllCMakeProjects()) {

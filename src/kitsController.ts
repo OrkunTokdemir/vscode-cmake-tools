@@ -487,11 +487,12 @@ export class KitsController {
      *
      * @returns if any duplicate vs kits are removed.
      */
-    static async scanForKits(cmakePath: string) {
+    static async scanForKits(cmakePath: string, additionalKits?: Kit[]) {
         log.debug(localize('rescanning.for.kits', 'Rescanning for kits'));
 
         // Do the scan:
-        const discovered_kits = await scanForKits(cmakePath, { scanDirs: KitsController.additionalCompilerSearchDirs });
+        let discovered_kits = await scanForKits(cmakePath, { scanDirs: KitsController.additionalCompilerSearchDirs });
+        discovered_kits = discovered_kits.concat(additionalKits || []);
 
         // The list with the new definition user kits starts with the non VS ones,
         // which do not have any variations in the way they can be defined.
